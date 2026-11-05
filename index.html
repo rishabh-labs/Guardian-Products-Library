@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Products Library</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2327406B'/%3E%3Cpath d='M9 8h4v16H9zM15 8h4v16h-4zM21.5 9l3.6-1 3.4 15.4-3.6 1z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- Sign-in -->
+<main id="auth" class="auth" hidden>
+  <div class="auth-card">
+    <h1 class="auth-title">Products Library</h1>
+    <p class="muted" id="auth-team"></p>
+
+    <form id="login-form" class="stack" novalidate>
+      <div class="fg"><label for="l-email">Work email</label><input id="l-email" class="field" type="email" autocomplete="username" required></div>
+      <div class="fg"><label for="l-pass">Password</label><input id="l-pass" class="field" type="password" autocomplete="current-password" required></div>
+      <span class="err" id="l-err"></span>
+      <button class="btn primary wide" id="l-btn" type="submit">Sign in</button>
+      <p class="muted small">No account yet? Ask the library admin to add you. Forgot your password? The admin can reset it for you.</p>
+    </form>
+
+    <form id="name-form" class="stack" novalidate hidden>
+      <p>Welcome. How should your name appear to the team?</p>
+      <div class="fg"><label for="n-name">Your name</label><input id="n-name" class="field" required maxlength="80" autocomplete="name"></div>
+      <div class="fg"><label for="n-pass">Choose a new password <span class="hint">optional, at least 8 characters</span></label><input id="n-pass" class="field" type="password" autocomplete="new-password"></div>
+      <span class="err" id="n-err"></span>
+      <button class="btn primary wide" type="submit">Continue</button>
+    </form>
+
+    <div id="setup-msg" class="stack" hidden>
+      <p><b>This site isn't connected to its database yet.</b></p>
+      <p class="muted">Open <code>config.js</code> and paste the Supabase project URL and anon key, as described in SETUP.md.</p>
+    </div>
+  </div>
+</main>
+
+<!-- Library -->
+<div id="app" hidden>
+<div class="wrap">
+  <header class="mast">
+    <div>
+      <h1>Products Library</h1>
+      <p>Every product the research desk has reviewed, with the decision, the documents behind it and the reasoning.</p>
+    </div>
+    <div class="mast-r">
+      <div class="usr"><span id="u-name"></span> · <button class="linkbtn" id="u-pass">Change password</button> · <button class="linkbtn" id="u-out">Sign out</button></div>
+      <div class="tally" aria-label="Totals">
+        <div class="t-ok"><b id="n-acc">–</b>Accepted</div>
+        <div class="t-no"><b id="n-rej">–</b>Rejected</div>
+        <div class="t-wait"><b id="n-rev">–</b>In review</div>
+      </div>
+    </div>
+  </header>
+
+  <div class="bar">
+    <div class="tabs" role="group" aria-label="Filter by decision" id="tabs">
+      <button class="tab" data-f="all" aria-pressed="true">All <span class="n" id="c-all"></span></button>
+      <button class="tab" data-f="accepted" aria-pressed="false">Accepted <span class="n" id="c-accepted"></span></button>
+      <button class="tab" data-f="rejected" aria-pressed="false">Rejected <span class="n" id="c-rejected"></span></button>
+      <button class="tab" data-f="review" aria-pressed="false">In review <span class="n" id="c-review"></span></button>
+    </div>
+    <div class="grow"><input id="q" class="field" type="search" placeholder="Search product, fund house, reasons, tags…" aria-label="Search"></div>
+    <select id="cat-f" class="field" aria-label="Category"><option value="">All categories</option></select>
+    <select id="sort" class="field" aria-label="Sort">
+      <option value="date">Newest decision</option>
+      <option value="name">Name A–Z</option>
+      <option value="updated">Recently updated</option>
+    </select>
+    <button class="btn primary" id="add-btn">+ Add product</button>
+  </div>
+
+  <div id="status" class="note-bar" hidden></div>
+  <div class="ledger">
+    <div class="lhead"><span>Decision</span><span>Product</span><span>Category</span><span>Decided</span><span>Docs</span><span>Added by</span></div>
+    <div id="rows"><div class="empty"><p>Loading the library…</p></div></div>
+  </div>
+</div>
+</div>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-modal="true" role="dialog" aria-labelledby="d-label"></aside>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
