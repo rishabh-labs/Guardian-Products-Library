@@ -3,93 +3,111 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Products Library</title>
+<title>Guardian Product Library</title>
 <meta name="robots" content="noindex,nofollow">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2327406B'/%3E%3Cpath d='M9 8h4v16H9zM15 8h4v16h-4zM21.5 9l3.6-1 3.4 15.4-3.6 1z' fill='%23fff'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#0D2B23">
+<link rel="icon" type="image/png" href="assets/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
 
 <!-- Sign-in -->
 <main id="auth" class="auth" hidden>
-  <div class="auth-card">
-    <h1 class="auth-title">Products Library</h1>
-    <p class="muted" id="auth-team"></p>
+  <div class="auth-inner">
+    <img class="auth-logo" src="assets/guardian-logo.png" alt="Guardian Capital">
+    <div class="auth-card">
+      <h1 class="auth-title">Guardian Product Library</h1>
+      <p class="auth-sub" id="auth-team"></p>
 
-    <form id="login-form" class="stack" novalidate>
-      <div class="fg"><label for="l-email">Work email</label><input id="l-email" class="field" type="email" autocomplete="username" required></div>
-      <div class="fg"><label for="l-pass">Password</label><input id="l-pass" class="field" type="password" autocomplete="current-password" required></div>
-      <span class="err" id="l-err"></span>
-      <button class="btn primary wide" id="l-btn" type="submit">Sign in</button>
-      <p class="muted small">No account yet? Ask the library admin to add you. Forgot your password? The admin can reset it for you.</p>
-    </form>
+      <form id="login-form" class="stack" novalidate>
+        <div class="fg"><label for="l-email">Work email</label><input id="l-email" class="field" type="email" autocomplete="username" placeholder="name@gcia.in" required></div>
+        <div class="fg"><label for="l-pass">Password</label><input id="l-pass" class="field" type="password" autocomplete="current-password" required></div>
+        <span class="err" id="l-err"></span>
+        <button class="btn primary wide" id="l-btn" type="submit">Sign in</button>
+        <p class="muted small center">No account yet? Ask the library admin to add you.<br>Forgot your password? The admin can reset it for you.</p>
+      </form>
 
-    <form id="name-form" class="stack" novalidate hidden>
-      <p>Welcome. How should your name appear to the team?</p>
-      <div class="fg"><label for="n-name">Your name</label><input id="n-name" class="field" required maxlength="80" autocomplete="name"></div>
-      <div class="fg"><label for="n-pass">Choose a new password <span class="hint">optional, at least 8 characters</span></label><input id="n-pass" class="field" type="password" autocomplete="new-password"></div>
-      <span class="err" id="n-err"></span>
-      <button class="btn primary wide" type="submit">Continue</button>
-    </form>
+      <form id="name-form" class="stack" novalidate hidden>
+        <p>Welcome. How should your name appear to the team?</p>
+        <div class="fg"><label for="n-name">Your name</label><input id="n-name" class="field" required maxlength="80" autocomplete="name"></div>
+        <div class="fg"><label for="n-pass">Choose a new password <span class="hint">optional, at least 8 characters</span></label><input id="n-pass" class="field" type="password" autocomplete="new-password"></div>
+        <span class="err" id="n-err"></span>
+        <button class="btn primary wide" type="submit">Continue</button>
+      </form>
 
-    <div id="setup-msg" class="stack" hidden>
-      <p><b>This site isn't connected to its database yet.</b></p>
-      <p class="muted">Open <code>config.js</code> and paste the Supabase project URL and anon key, as described in SETUP.md.</p>
+      <div id="setup-msg" class="stack" hidden>
+        <p><b>This site isn't connected to its database yet.</b></p>
+        <p class="muted">Open <code>config.js</code> and paste the Supabase project URL and key, as described in SETUP.md.</p>
+      </div>
     </div>
+    <p class="auth-foot">Guardian Capital · Research Desk</p>
   </div>
 </main>
 
 <!-- Library -->
 <div id="app" hidden>
-<div class="wrap">
-  <header class="mast">
-    <div>
-      <h1>Products Library</h1>
-      <p>Every product the research desk has reviewed, with the decision, the documents behind it and the reasoning.</p>
-    </div>
-    <div class="mast-r">
-      <div class="usr"><span id="u-name"></span> · <button class="linkbtn" id="u-pass">Change password</button> · <button class="linkbtn" id="u-out">Sign out</button></div>
-      <div class="tally" aria-label="Totals">
-        <div class="t-ok"><b id="n-acc">–</b>Accepted</div>
-        <div class="t-no"><b id="n-rej">–</b>Rejected</div>
-        <div class="t-wait"><b id="n-rev">–</b>In review</div>
+  <header class="hero">
+    <div class="hero-in">
+      <div class="brand">
+        <img class="brand-logo" src="assets/guardian-logo.png" alt="Guardian Capital">
+        <div class="brand-text">
+          <span class="eyebrow">Guardian Capital · Research Desk</span>
+          <h1>Guardian Product Library</h1>
+          <p>Every product we have reviewed, with the decision, the documents behind it and the reasoning.</p>
+        </div>
+      </div>
+      <div class="usr">
+        <span class="usr-av" id="u-av" aria-hidden="true"></span>
+        <div class="usr-t">
+          <span id="u-name"></span>
+          <span class="usr-links"><button class="linkbtn" id="u-pass">Change password</button> · <button class="linkbtn" id="u-out">Sign out</button></span>
+        </div>
       </div>
     </div>
   </header>
 
-  <div class="bar">
-    <div class="tabs" role="group" aria-label="Filter by decision" id="tabs">
-      <button class="tab" data-f="all" aria-pressed="true">All <span class="n" id="c-all"></span></button>
-      <button class="tab" data-f="accepted" aria-pressed="false">Accepted <span class="n" id="c-accepted"></span></button>
-      <button class="tab" data-f="rejected" aria-pressed="false">Rejected <span class="n" id="c-rejected"></span></button>
-      <button class="tab" data-f="review" aria-pressed="false">In review <span class="n" id="c-review"></span></button>
-    </div>
-    <div class="grow"><input id="q" class="field" type="search" placeholder="Search product, fund house, reasons, tags…" aria-label="Search"></div>
-    <select id="cat-f" class="field" aria-label="Category"><option value="">All categories</option></select>
-    <select id="sort" class="field" aria-label="Sort">
-      <option value="date">Newest decision</option>
-      <option value="name">Name A–Z</option>
-      <option value="updated">Recently updated</option>
-    </select>
-    <button class="btn primary" id="add-btn">+ Add product</button>
-  </div>
+  <div class="wrap">
+    <section class="stats" aria-label="Totals">
+      <div class="stat s-all"><span class="stat-l">Products reviewed</span><b id="n-all">–</b><span class="stat-bar"><i style="width:100%"></i></span></div>
+      <div class="stat s-ok"><span class="stat-l">Accepted</span><b id="n-acc">–</b><span class="stat-bar"><i id="b-acc"></i></span></div>
+      <div class="stat s-no"><span class="stat-l">Rejected</span><b id="n-rej">–</b><span class="stat-bar"><i id="b-rej"></i></span></div>
+      <div class="stat s-wait"><span class="stat-l">In review</span><b id="n-rev">–</b><span class="stat-bar"><i id="b-rev"></i></span></div>
+    </section>
 
-  <div id="status" class="note-bar" hidden></div>
-  <div class="ledger">
-    <div class="lhead"><span>Decision</span><span>Product</span><span>Category</span><span>Decided</span><span>Docs</span><span>Added by</span></div>
-    <div id="rows"><div class="empty"><p>Loading the library…</p></div></div>
+    <div class="bar">
+      <div class="tabs" role="group" aria-label="Filter by decision" id="tabs">
+        <button class="tab" data-f="all" aria-pressed="true">All <span class="n" id="c-all"></span></button>
+        <button class="tab" data-f="accepted" aria-pressed="false"><i class="dot ok"></i>Accepted <span class="n" id="c-accepted"></span></button>
+        <button class="tab" data-f="rejected" aria-pressed="false"><i class="dot no"></i>Rejected <span class="n" id="c-rejected"></span></button>
+        <button class="tab" data-f="review" aria-pressed="false"><i class="dot wait"></i>In review <span class="n" id="c-review"></span></button>
+      </div>
+      <div class="grow search"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M13 13l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="q" class="field" type="search" placeholder="Search products, fund houses, reasons, tags…" aria-label="Search"></div>
+      <select id="cat-f" class="field" aria-label="Category"><option value="">All categories</option></select>
+      <select id="sort" class="field" aria-label="Sort">
+        <option value="date">Newest decision</option>
+        <option value="name">Name A–Z</option>
+        <option value="updated">Recently updated</option>
+      </select>
+      <button class="btn primary" id="add-btn"><span aria-hidden="true">＋</span> Add product</button>
+    </div>
+
+    <div id="status" class="note-bar" hidden></div>
+    <div class="ledger">
+      <div class="lhead"><span>Decision</span><span>Product</span><span>Category</span><span>Decided</span><span>Docs</span><span>Added by</span></div>
+      <div id="rows"><div class="empty"><p>Loading the library…</p></div></div>
+    </div>
+    <footer class="foot"><img src="assets/guardian-mark.png" alt="" aria-hidden="true"> Guardian Capital · Internal research library</footer>
   </div>
-</div>
 </div>
 
 <div class="scrim" id="scrim" hidden></div>
 <aside class="drawer" id="drawer" hidden aria-modal="true" role="dialog" aria-labelledby="d-label"></aside>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js"></script>
-<script src="app.js"></script>
+<script src="config.js?v=2"></script>
+<script src="app.js?v=2"></script>
 </body>
 </html>

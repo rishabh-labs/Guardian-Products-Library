@@ -1,4 +1,4 @@
-# Products Library
+# Guardian Product Library
 
 The research desk's shared record of every product it has reviewed: what was accepted or rejected, the documents behind each decision, and the reasoning.
 

@@ -24,8 +24,8 @@ let sb=null,me=null,myName="",isAdmin=false;
 let products=[],loaded=false,filter="all",openId=null,notes=[],mode=null,renderTok=0,channel=null;
 
 /* ---------- boot & auth ---------- */
-document.title="Products Library";
-$("#auth-team").textContent=cfg.TEAM_NAME?`${cfg.TEAM_NAME} · sign in to continue`:"Sign in to continue";
+document.title="Guardian Product Library";
+$("#auth-team").textContent="Sign in with your work email to continue";
 $("#cat-f").insertAdjacentHTML("beforeend",CATS.map(c=>`<option>${esc(c)}</option>`).join(""));
 
 function show(view){$("#auth").hidden=view!=="auth";$("#app").hidden=view!=="app"}
@@ -77,6 +77,7 @@ function onSignedOut(){
 async function enterApp(){
   show("app");
   $("#u-name").textContent=myName;
+  $("#u-av").textContent=initials(myName);
   const [t,a]=await Promise.all([sb.rpc("is_team"),sb.rpc("is_admin")]);
   isAdmin=!!a.data;
   if(t.data===false){status("Your account isn't on the team list, so the library is hidden. Ask the admin to add your email.");}
@@ -132,11 +133,14 @@ function renderList(){
   const cnt={all:products.length,accepted:0,rejected:0,review:0};
   products.forEach(p=>{if(cnt[p.decision]!=null)cnt[p.decision]++});
   for(const k in cnt)$("#c-"+k).textContent=loaded?cnt[k]:"";
+  $("#n-all").textContent=loaded?cnt.all:"–";
   $("#n-acc").textContent=loaded?cnt.accepted:"–";$("#n-rej").textContent=loaded?cnt.rejected:"–";$("#n-rev").textContent=loaded?cnt.review:"–";
+  const pct=n=>cnt.all?Math.round(n/cnt.all*100)+"%":"0%";
+  $("#b-acc").style.width=pct(cnt.accepted);$("#b-rej").style.width=pct(cnt.rejected);$("#b-rev").style.width=pct(cnt.review);
   if(!loaded)return;
   const rows=$("#rows");
   if(!products.length){
-    rows.innerHTML=`<div class="empty"><h2>The shelf is empty</h2><p>Each product the team reviews goes here: its name, the fund house, the documents you studied and the reason it was accepted or rejected.</p><button class="btn primary" id="first-add">+ Add the first product</button></div>`;
+    rows.innerHTML=`<div class="empty"><img class="mark" src="assets/guardian-mark.png" alt=""><h2>The library is empty</h2><p>Each product the team reviews goes here: its name, the fund house, the documents you studied and the reason it was accepted or rejected.</p><button class="btn primary" id="first-add">+ Add the first product</button></div>`;
     $("#first-add").onclick=()=>openForm(null);return;
   }
   const list=visible();
@@ -320,7 +324,7 @@ function openForm(id){
       <div class="fg"><label for="f-tags">Tags <span class="hint">comma separated</span></label><input id="f-tags" class="field" value="${esc(v.tags.join(", "))}" placeholder="e.g. small-cap, high fees, revisit 2027"></div>
       <div class="fg"><span class="lab">Documents</span>
         <div class="files" id="f-files"></div>
-        <div class="drop" id="drop" tabindex="0" role="button">Drop files here or click to choose<br><span class="hint">Excel, Word, PowerPoint, PDF, emails, images · up to 50 MB each</span></div>
+        <div class="drop" id="drop" tabindex="0" role="button"><b>Drop files here</b> or click to choose<br><span class="hint">Excel, Word, PowerPoint, PDF, emails, images · up to 50 MB each</span></div>
         <input type="file" id="f-file" multiple hidden>
         <span class="err" id="f-ferr"></span>
       </div>

@@ -1,4 +1,4 @@
-# Products Library: setup
+# Guardian Product Library: setup
 
 This is a website your team opens in Chrome. It needs two free accounts:
 
