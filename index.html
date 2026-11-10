@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Manrope:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="styles.css?v=2">
+<link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 
@@ -83,11 +83,14 @@
         <button class="tab" data-f="accepted" aria-pressed="false"><i class="dot ok"></i>Accepted <span class="n" id="c-accepted"></span></button>
         <button class="tab" data-f="rejected" aria-pressed="false"><i class="dot no"></i>Rejected <span class="n" id="c-rejected"></span></button>
         <button class="tab" data-f="review" aria-pressed="false"><i class="dot wait"></i>In review <span class="n" id="c-review"></span></button>
+        <button class="tab" data-f="due" aria-pressed="false" title="Reviews due in the next 30 days, or overdue"><span aria-hidden="true">⟳</span>Review due <span class="n" id="c-due"></span></button>
       </div>
-      <div class="grow search"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M13 13l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="q" class="field" type="search" placeholder="Search products, fund houses, reasons, tags…" aria-label="Search"></div>
-      <select id="cat-f" class="field" aria-label="Category"><option value="">All categories</option></select>
+      <div class="grow search"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M13 13l4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="q" class="field" type="search" placeholder="Search products, fund houses, analysts, transcripts…" aria-label="Search"></div>
+      <select id="asset-f" class="field" aria-label="Equity or debt"><option value="">Equity &amp; debt</option><option>Equity</option><option>Debt</option></select>
+      <select id="veh-f" class="field" aria-label="PMS or AIF"><option value="">PMS &amp; AIF</option><option>PMS</option><option>AIF</option><option value="AIF Cat I">AIF · Cat I</option><option value="AIF Cat II">AIF · Cat II</option><option value="AIF Cat III">AIF · Cat III</option></select>
       <select id="sort" class="field" aria-label="Sort">
         <option value="date">Newest decision</option>
+        <option value="review">Next review date</option>
         <option value="name">Name A–Z</option>
         <option value="updated">Recently updated</option>
       </select>
@@ -96,7 +99,7 @@
 
     <div id="status" class="note-bar" hidden></div>
     <div class="ledger">
-      <div class="lhead"><span>Decision</span><span>Product</span><span>Category</span><span>Decided</span><span>Docs</span><span>Added by</span></div>
+      <div class="lhead"><span>Decision</span><span>Product</span><span>Type</span><span>Analyst</span><span>FM meeting</span><span>Next review</span><span>Files</span></div>
       <div id="rows"><div class="empty"><p>Loading the library…</p></div></div>
     </div>
     <footer class="foot"><img src="assets/guardian-mark.png" alt="" aria-hidden="true"> Guardian Capital · Internal research library</footer>
@@ -107,7 +110,7 @@
 <aside class="drawer" id="drawer" hidden aria-modal="true" role="dialog" aria-labelledby="d-label"></aside>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="config.js?v=2"></script>
-<script src="app.js?v=2"></script>
+<script src="config.js?v=3"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>

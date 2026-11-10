@@ -1,0 +1,37 @@
+# Every morning at 9:00 IST, email the team about products whose review date has arrived.
+name: Review reminders
+on:
+  schedule:
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "List what would be sent, without sending"
+        type: boolean
+        default: false
+permissions:
+  contents: read
+  actions: write   # lets the job keep the scheduled workflows switched on (GitHub pauses schedules after 60 quiet days)
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Send due reminders
+        env:
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          REMINDER_TO: ${{ secrets.REMINDER_TO }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: python scripts/send_review_reminders.py
+      - name: Keep scheduled jobs switched on
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh workflow enable review-reminders.yml --repo "$GITHUB_REPOSITORY" || true
+          gh workflow enable keepalive.yml --repo "$GITHUB_REPOSITORY" || true

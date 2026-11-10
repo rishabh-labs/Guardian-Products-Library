@@ -4,5 +4,6 @@
 window.PL_CONFIG = {
   SUPABASE_URL: "https://iyrcdlwsyuerbvdvycpv.supabase.co", // e.g. https://abcdxyz.supabase.co
   SUPABASE_ANON_KEY: "sb_publishable_GDwbh_GecCe3Nv9cI5Ntbg_RFDASJ0y",
-  TEAM_NAME: "GCIA Research"
+  TEAM_NAME: "GCIA Research",
+  SITE_URL: "https://rishabh-labs.github.io/Guardian-Products-Library/"   // used for links in reminder emails
 };

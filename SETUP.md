@@ -60,6 +60,23 @@ The first time each person signs in, the site asks for their name and lets them 
 - **Pauses after 7 days unused.** Supabase pauses free projects after a week with no activity. The `.github/workflows/keepalive.yml` job pings the database every 3 days to prevent that. If it ever does pause, open the Supabase dashboard and click **Restore project**. No data is lost.
 - **Backups:** to keep your own copy of the records, open **Table Editor**, pick `products`, and use **Export → CSV**. Files can be downloaded from **Storage → documents**.
 
+## Review reminder emails
+
+When a product is saved with **Review again? → Yes** and a gap of 1–12 months, the site records the date that many months from that day. Every morning at 9:00 IST, the GitHub job `Review reminders` emails your list about each product whose date has arrived. It sends once per product; choosing a new gap later schedules a fresh email.
+
+The job needs four **repository secrets**. Add them under GitHub → the repository → **Settings → Secrets and variables → Actions → New repository secret**:
+
+| Name | Value |
+|---|---|
+| `SUPABASE_SERVICE_KEY` | Supabase → Project Settings → **API Keys** → **Secret keys** → copy the `sb_secret_…` key (create one if none is listed). Never put this key in any file. |
+| `SMTP_USER` | The @gcia.in Google address the emails are sent from |
+| `SMTP_PASSWORD` | A Google **app password** for that address: <https://myaccount.google.com/apppasswords>. It needs 2-Step Verification switched on. |
+| `REMINDER_TO` | Who gets the emails, separated by commas, e.g. `a@gcia.in, b@gcia.in` |
+
+**To test it:** open the **Actions** tab, pick **Review reminders**, click **Run workflow**, and tick "List what would be sent". The run's log lists the reminders that are due.
+
+**To change who gets the emails:** edit the `REMINDER_TO` secret.
+
 ## Changing the site later
 
 Edit the files and upload them to the GitHub repository again. Pages republishes within a minute.
