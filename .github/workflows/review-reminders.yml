@@ -9,6 +9,10 @@ on:
         description: "List what would be sent, without sending"
         type: boolean
         default: false
+      send_test:
+        description: "Send one sample email to the list (checks the setup)"
+        type: boolean
+        default: false
 permissions:
   contents: read
   actions: write   # lets the job keep the scheduled workflows switched on (GitHub pauses schedules after 60 quiet days)
@@ -27,6 +31,7 @@ jobs:
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           REMINDER_TO: ${{ secrets.REMINDER_TO }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+          SEND_TEST: ${{ inputs.send_test && '1' || '0' }}
         run: python scripts/send_review_reminders.py
       - name: Keep scheduled jobs switched on
         if: always()

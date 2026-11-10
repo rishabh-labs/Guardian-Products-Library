@@ -42,6 +42,7 @@ SMTP_USER = os.environ.get("SMTP_USER", "")
 SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "").replace(" ", "")
 TO = [a.strip() for a in os.environ.get("REMINDER_TO", "").replace(";", ",").split(",") if a.strip()]
 DRY = os.environ.get("DRY_RUN") == "1"
+TEST = os.environ.get("SEND_TEST") == "1"   # send one sample email, touch nothing in the database
 
 
 def api(method, path, body=None):
@@ -106,8 +107,8 @@ def build(p):
 
 def main():
     missing = [n for n, v in [("SUPABASE_URL", SUPABASE_URL), ("SUPABASE_SERVICE_KEY", KEY)] if not v]
-    if not DRY:
-        missing += [n for n, v in [("SMTP_USER", SMTP_USER), ("SMTP_PASSWORD", SMTP_PASSWORD), ("REMINDER_TO", TO)] if not v]
+    if not DRY or TEST:
+        missing +=[n for n, v in [("SMTP_USER", SMTP_USER), ("SMTP_PASSWORD", SMTP_PASSWORD), ("REMINDER_TO", TO)] if not v]
     if missing:
         sys.exit("Missing settings: " + ", ".join(missing) + ". Add them under GitHub → Settings → Secrets and variables → Actions.")
 
@@ -115,14 +116,36 @@ def main():
     cols = "id,name,manager,category,asset_class,vehicle,aif_category,analyst,decision,decided_on,rationale,review_months,review_due"
     q = f"products?select={cols}&review_again=eq.true&reminder_sent_at=is.null&review_due=lte.{today}&order=review_due.asc"
     due = api("GET", q) or []
-    print(f"{today}: {len(due)} review(s) due")
+    total = api("GET", "products?select=id&review_again=eq.true") or []
+    print(f"{today}: database reached; {len(total)} product(s) have a review scheduled, {len(due)} due now")
+
+    if TEST:
+        sample = {"id": "", "name": "TEST — Example Multi-Cap PMS", "manager": "Example Capital", "asset_class": "Equity",
+                  "vehicle": "PMS", "analyst": "Test", "decision": "accepted", "decided_on": today,
+                  "rationale": "This is a test email from Guardian Product Library. If you received it, review reminders are set up correctly.",
+                  "review_months": 6, "review_due": today}
+        subject, text, body_html = build(sample)
+        subject = "[Test] " + subject
+        msg = EmailMessage()
+        msg["Subject"], msg["From"], msg["To"] = subject, f"Guardian Product Library <{SMTP_USER}>", ", ".join(TO)
+        msg.set_content(text)
+        msg.add_alternative(body_html, subtype="html")
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as s:
+            s.login(SMTP_USER, SMTP_PASSWORD)
+            s.send_message(msg)
+        print(f"Test email sent to {len(TO)} recipient(s).")
+        return
+
     if not due:
         return
 
     smtp = None
     if not DRY:
         smtp = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30)
-        smtp.login(SMTP_USER, SMTP_PASSWORD)
+        try:
+            smtp.login(SMTP_USER, SMTP_PASSWORD)
+        except smtplib.SMTPAuthenticationError:
+            sys.exit("Gmail refused the sign-in. Check SMTP_USER and that SMTP_PASSWORD is an app password.")
     failures = 0
     for p in due:
         subject, text, body_html = build(p)
