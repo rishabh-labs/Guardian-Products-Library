@@ -39,8 +39,8 @@ def from_config(key):
 SUPABASE_URL = (os.environ.get("SUPABASE_URL") or from_config("SUPABASE_URL")).rstrip("/")
 SITE_URL = os.environ.get("SITE_URL") or from_config("SITE_URL")
 KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
-SMTP_USER = os.environ.get("SMTP_USER", "")
-SMTP_PASSWORD = os.environ.get("SMTP_PASSWORD", "").replace(" ", "")
+SMTP_USER = os.environ.get("SMTP_USER", "").strip()
+SMTP_PASSWORD = "".join(os.environ.get("SMTP_PASSWORD", "").split())
 TO = [a.strip() for a in os.environ.get("REMINDER_TO", "").replace(";", ",").split(",") if a.strip()]
 DRY = os.environ.get("DRY_RUN") == "1"
 TEST = os.environ.get("SEND_TEST") == "1"   # send one sample email, touch nothing in the database
@@ -66,17 +66,47 @@ def api(method, path, body=None):
         sys.exit(f"Could not reach Supabase ({ex.reason}). If the project is paused, restore it in the Supabase dashboard.")
 
 
-def send(msgs):
-    try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as s:
+def connect():
+    """Sign in to Gmail, trying port 465 (SSL) and then 587 (STARTTLS). Exits with a plain-English reason."""
+    hints = []
+    if "@" not in SMTP_USER:
+        hints.append("SMTP_USER does not look like an email address; it must be the full address, e.g. name@gcia.in")
+    if not (len(SMTP_PASSWORD) == 16 and SMTP_PASSWORD.isalpha()):
+        hints.append("SMTP_PASSWORD is not a 16-letter app password; create one at https://myaccount.google.com/apppasswords "
+                     "while signed in as the SMTP_USER address, and paste it without anything else")
+    errors = []
+    for port in (465, 587):
+        try:
+            if port == 465:
+                s = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30)
+            else:
+                s = smtplib.SMTP("smtp.gmail.com", 587, timeout=30)
+                s.starttls()
             s.login(SMTP_USER, SMTP_PASSWORD)
-            for m in msgs:
-                s.send_message(m)
-    except smtplib.SMTPAuthenticationError as ex:
-        sys.exit("Gmail refused the sign-in. Check that SMTP_USER is the full email address and SMTP_PASSWORD is the "
-                 f"16-letter Google app password (not the normal password). Gmail said: {ex.smtp_error.decode('utf-8', 'replace')[:300]}")
+            return s
+        except smtplib.SMTPAuthenticationError as ex:
+            errors.append(f"port {port}: Gmail rejected the user name or password ({ex.smtp_code} "
+                          f"{ex.smtp_error.decode('utf-8', 'replace')[:200]})")
+            break
+        except (smtplib.SMTPException, OSError) as ex:
+            errors.append(f"port {port}: {type(ex).__name__}: {ex}")
+    sys.exit("Could not sign in to Gmail.\n  " + "\n  ".join(errors + hints) +
+             "\nIf both secrets look right, your Google Workspace admin may have turned off app passwords or SMTP "
+             "(Admin console → Security → Less secure apps / App passwords).")
+
+
+def send(msgs):
+    s = connect()
+    try:
+        for m in msgs:
+            s.send_message(m)
     except smtplib.SMTPRecipientsRefused as ex:
         sys.exit(f"Gmail refused these recipients; check REMINDER_TO: {', '.join(ex.recipients)}")
+    finally:
+        try:
+            s.quit()
+        except Exception:
+            pass
 
 
 def fmt(d):
@@ -162,11 +192,7 @@ def main():
 
     smtp = None
     if not DRY:
-        smtp = smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30)
-        try:
-            smtp.login(SMTP_USER, SMTP_PASSWORD)
-        except smtplib.SMTPAuthenticationError:
-            sys.exit("Gmail refused the sign-in. Check SMTP_USER and that SMTP_PASSWORD is an app password.")
+        smtp = connect()
     failures = 0
     for p in due:
         subject, text, body_html = build(p)
