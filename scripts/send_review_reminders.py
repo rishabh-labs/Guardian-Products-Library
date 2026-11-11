@@ -18,6 +18,7 @@ import os
 import re
 import smtplib
 import sys
+import urllib.error
 import urllib.parse
 import urllib.request
 from email.message import EmailMessage
@@ -51,9 +52,31 @@ def api(method, path, body=None):
         headers["Authorization"] = "Bearer " + KEY
     req = urllib.request.Request(SUPABASE_URL + "/rest/v1/" + path, method=method, headers=headers,
                                  data=json.dumps(body).encode() if body is not None else None)
-    with urllib.request.urlopen(req, timeout=30) as r:
-        raw = r.read()
-        return json.loads(raw) if raw else None
+    try:
+        with urllib.request.urlopen(req, timeout=30) as r:
+            raw = r.read()
+            return json.loads(raw) if raw else None
+    except urllib.error.HTTPError as ex:
+        detail = ex.read().decode("utf-8", "replace")[:300]
+        if ex.code in (401, 403):
+            sys.exit(f"Supabase refused the key (HTTP {ex.code}). Check the SUPABASE_SERVICE_KEY secret: it must be the "
+                     f"Secret key (sb_secret_…) from Supabase → Project Settings → API Keys, copied in full. Details: {detail}")
+        sys.exit(f"Supabase error HTTP {ex.code}: {detail}")
+    except urllib.error.URLError as ex:
+        sys.exit(f"Could not reach Supabase ({ex.reason}). If the project is paused, restore it in the Supabase dashboard.")
+
+
+def send(msgs):
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as s:
+            s.login(SMTP_USER, SMTP_PASSWORD)
+            for m in msgs:
+                s.send_message(m)
+    except smtplib.SMTPAuthenticationError as ex:
+        sys.exit("Gmail refused the sign-in. Check that SMTP_USER is the full email address and SMTP_PASSWORD is the "
+                 f"16-letter Google app password (not the normal password). Gmail said: {ex.smtp_error.decode('utf-8', 'replace')[:300]}")
+    except smtplib.SMTPRecipientsRefused as ex:
+        sys.exit(f"Gmail refused these recipients; check REMINDER_TO: {', '.join(ex.recipients)}")
 
 
 def fmt(d):
@@ -130,9 +153,7 @@ def main():
         msg["Subject"], msg["From"], msg["To"] = subject, f"Guardian Product Library <{SMTP_USER}>", ", ".join(TO)
         msg.set_content(text)
         msg.add_alternative(body_html, subtype="html")
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=30) as s:
-            s.login(SMTP_USER, SMTP_PASSWORD)
-            s.send_message(msg)
+        send([msg])
         print(f"Test email sent to {len(TO)} recipient(s).")
         return
 
